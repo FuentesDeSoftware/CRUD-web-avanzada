@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Colilla (comprobante) de un pago de planilla.
+  Pago por horas extras = (Salario / 240) * 1.25 * horasExtras
+  (240 = 30 dias x 8 horas; 1.25 = recargo del 25 %).
+  Autor: Julio Fuentes
+-->
+<jasperReport name="ReporteColillaPago" language="java" pageWidth="595" pageHeight="420" orientation="Landscape" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenNoDataType="NoDataSection">
+	<parameter name="AUTOR" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Julio Fuentes"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="ID_PAGO" class="java.lang.Integer"/>
+	<query language="SQL"><![CDATA[SELECT p.IdPago, p.fechaPago, e.IdEmpleado, e.Nombre + ' ' + e.Apellido AS nombre, e.Puesto,
+       e.Salario, p.horasExtras, p.viaticos,
+       CAST(e.Salario / 240 * 1.25 * p.horasExtras AS DECIMAL(12,2)) AS pagoHorasExtras
+FROM Planilla p
+INNER JOIN Empleados e ON p.idEmpleado = e.IdEmpleado
+WHERE p.IdPago = $P{ID_PAGO}]]></query>
+	<field name="IdPago" class="java.lang.Integer"/>
+	<field name="fechaPago" class="java.util.Date"/>
+	<field name="IdEmpleado" class="java.lang.Integer"/>
+	<field name="nombre" class="java.lang.String"/>
+	<field name="Puesto" class="java.lang.String"/>
+	<field name="Salario" class="java.math.BigDecimal"/>
+	<field name="horasExtras" class="java.math.BigDecimal"/>
+	<field name="viaticos" class="java.math.BigDecimal"/>
+	<field name="pagoHorasExtras" class="java.math.BigDecimal"/>
+	<detail>
+		<band height="300">
+			<element kind="staticText" x="0" y="0" width="555" height="30" fontSize="18.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+				<text><![CDATA[Comprobante de Pago]]></text>
+			</element>
+			<element kind="textField" x="0" y="30" width="555" height="18" fontSize="10.0" hTextAlign="Center">
+				<expression><![CDATA["Pago #" + $F{IdPago} + "  —  " + new java.text.SimpleDateFormat("dd/MM/yyyy").format($F{fechaPago})]]></expression>
+			</element>
+			<element kind="line" x="0" y="54" width="555" height="1"/>
+
+			<element kind="staticText" x="0" y="64" width="110" height="20" bold="true" vTextAlign="Middle">
+				<text><![CDATA[Empleado:]]></text>
+			</element>
+			<element kind="textField" x="110" y="64" width="445" height="20" vTextAlign="Middle">
+				<expression><![CDATA[$F{nombre} + " (ID " + $F{IdEmpleado} + ")"]]></expression>
+			</element>
+			<element kind="staticText" x="0" y="84" width="110" height="20" bold="true" vTextAlign="Middle">
+				<text><![CDATA[Puesto:]]></text>
+			</element>
+			<element kind="textField" x="110" y="84" width="445" height="20" vTextAlign="Middle">
+				<expression><![CDATA[$F{Puesto}]]></expression>
+			</element>
+
+			<element kind="staticText" mode="Opaque" x="0" y="116" width="400" height="22" backcolor="#F2F2F2" bold="true" vTextAlign="Middle">
+				<text><![CDATA[Concepto]]></text>
+				<box leftPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="staticText" mode="Opaque" x="400" y="116" width="155" height="22" backcolor="#F2F2F2" bold="true" hTextAlign="Right" vTextAlign="Middle">
+				<text><![CDATA[Monto]]></text>
+				<box rightPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+
+			<element kind="staticText" x="0" y="138" width="400" height="20" vTextAlign="Middle">
+				<text><![CDATA[Salario base]]></text>
+				<box leftPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="textField" x="400" y="138" width="155" height="20" hTextAlign="Right" vTextAlign="Middle" pattern="L #,##0.00">
+				<expression><![CDATA[$F{Salario}]]></expression>
+				<box rightPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="textField" x="0" y="158" width="400" height="20" vTextAlign="Middle">
+				<expression><![CDATA["Horas extras (" + new java.text.DecimalFormat("#,##0.00").format($F{horasExtras}) + " h, recargo 25 %)"]]></expression>
+				<box leftPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="textField" x="400" y="158" width="155" height="20" hTextAlign="Right" vTextAlign="Middle" pattern="L #,##0.00">
+				<expression><![CDATA[$F{pagoHorasExtras}]]></expression>
+				<box rightPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="staticText" x="0" y="178" width="400" height="20" vTextAlign="Middle">
+				<text><![CDATA[Viáticos]]></text>
+				<box leftPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="textField" x="400" y="178" width="155" height="20" hTextAlign="Right" vTextAlign="Middle" pattern="L #,##0.00">
+				<expression><![CDATA[$F{viaticos}]]></expression>
+				<box rightPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="staticText" mode="Opaque" x="0" y="198" width="400" height="24" backcolor="#DCE6F5" fontSize="11.0" bold="true" vTextAlign="Middle">
+				<text><![CDATA[TOTAL A PAGAR]]></text>
+				<box leftPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="textField" mode="Opaque" x="400" y="198" width="155" height="24" backcolor="#DCE6F5" fontSize="11.0" bold="true" hTextAlign="Right" vTextAlign="Middle" pattern="L #,##0.00">
+				<expression><![CDATA[$F{Salario}.add($F{pagoHorasExtras}).add($F{viaticos})]]></expression>
+				<box rightPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+
+			<element kind="line" x="40" y="270" width="200" height="1"/>
+			<element kind="staticText" x="40" y="272" width="200" height="16" fontSize="9.0" hTextAlign="Center">
+				<text><![CDATA[Firma del empleado]]></text>
+			</element>
+			<element kind="line" x="315" y="270" width="200" height="1"/>
+			<element kind="textField" x="315" y="272" width="200" height="16" fontSize="9.0" hTextAlign="Center">
+				<expression><![CDATA["Elaborado por: " + $P{AUTOR}]]></expression>
+			</element>
+		</band>
+	</detail>
+	<noData height="60">
+		<element kind="textField" x="0" y="15" width="555" height="25" fontSize="12.0" hTextAlign="Center" vTextAlign="Middle" forecolor="#CC0000">
+			<expression><![CDATA["No existe el pago #" + $P{ID_PAGO}]]></expression>
+		</element>
+	</noData>
+</jasperReport>

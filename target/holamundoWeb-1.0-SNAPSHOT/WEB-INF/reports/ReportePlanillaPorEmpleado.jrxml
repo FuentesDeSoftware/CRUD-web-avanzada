@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Pagos de planilla agrupados por empleado, con subtotales y filtro opcional por fechas. Autor: Julio Fuentes -->
+<jasperReport name="ReportePlanillaPorEmpleado" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenNoDataType="NoDataSection">
+	<parameter name="AUTOR" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Julio Fuentes"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="FECHA_INICIO" class="java.util.Date"/>
+	<parameter name="FECHA_FIN" class="java.util.Date"/>
+	<query language="SQL"><![CDATA[SELECT e.IdEmpleado, e.Nombre + ' ' + e.Apellido AS nombre, e.Puesto,
+       p.IdPago, p.fechaPago, p.horasExtras, p.viaticos
+FROM Planilla p
+INNER JOIN Empleados e ON p.idEmpleado = e.IdEmpleado
+WHERE ($P{FECHA_INICIO} IS NULL OR p.fechaPago >= CAST($P{FECHA_INICIO} AS DATE))
+  AND ($P{FECHA_FIN} IS NULL OR p.fechaPago < DATEADD(DAY, 1, CAST($P{FECHA_FIN} AS DATE)))
+ORDER BY e.Nombre, e.Apellido, e.IdEmpleado, p.fechaPago]]></query>
+	<field name="IdEmpleado" class="java.lang.Integer"/>
+	<field name="nombre" class="java.lang.String"/>
+	<field name="Puesto" class="java.lang.String"/>
+	<field name="IdPago" class="java.lang.Integer"/>
+	<field name="fechaPago" class="java.util.Date"/>
+	<field name="horasExtras" class="java.math.BigDecimal"/>
+	<field name="viaticos" class="java.math.BigDecimal"/>
+	<variable name="horasEmpleado" resetType="Group" resetGroup="Empleado" calculation="Sum" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{horasExtras}]]></expression>
+	</variable>
+	<variable name="viaticosEmpleado" resetType="Group" resetGroup="Empleado" calculation="Sum" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{viaticos}]]></expression>
+	</variable>
+	<variable name="totalHoras" calculation="Sum" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{horasExtras}]]></expression>
+	</variable>
+	<variable name="totalViaticos" calculation="Sum" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{viaticos}]]></expression>
+	</variable>
+	<group name="Empleado">
+		<expression><![CDATA[$F{IdEmpleado}]]></expression>
+		<groupHeader>
+			<band height="48">
+				<element kind="textField" mode="Opaque" x="0" y="4" width="555" height="22" backcolor="#DCE6F5" fontSize="11.0" bold="true" vTextAlign="Middle">
+					<expression><![CDATA[$F{nombre} + "  —  " + $F{Puesto}]]></expression>
+					<box leftPadding="5"/>
+				</element>
+				<element kind="staticText" mode="Opaque" x="0" y="26" width="80" height="22" backcolor="#F2F2F2" bold="true" hTextAlign="Center" vTextAlign="Middle">
+					<text><![CDATA[ID Pago]]></text>
+					<box><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+				</element>
+				<element kind="staticText" mode="Opaque" x="80" y="26" width="175" height="22" backcolor="#F2F2F2" bold="true" hTextAlign="Center" vTextAlign="Middle">
+					<text><![CDATA[Fecha]]></text>
+					<box><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+				</element>
+				<element kind="staticText" mode="Opaque" x="255" y="26" width="150" height="22" backcolor="#F2F2F2" bold="true" hTextAlign="Right" vTextAlign="Middle">
+					<text><![CDATA[Horas Extras]]></text>
+					<box rightPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+				</element>
+				<element kind="staticText" mode="Opaque" x="405" y="26" width="150" height="22" backcolor="#F2F2F2" bold="true" hTextAlign="Right" vTextAlign="Middle">
+					<text><![CDATA[Viáticos]]></text>
+					<box rightPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+				</element>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="26">
+				<element kind="staticText" x="80" y="0" width="175" height="20" bold="true" hTextAlign="Right" vTextAlign="Middle">
+					<text><![CDATA[Subtotal:]]></text>
+					<box rightPadding="5"/>
+				</element>
+				<element kind="textField" x="255" y="0" width="150" height="20" bold="true" hTextAlign="Right" vTextAlign="Middle" pattern="#,##0.00">
+					<expression><![CDATA[$V{horasEmpleado}]]></expression>
+					<box rightPadding="5"><topPen lineWidth="0.5"/></box>
+				</element>
+				<element kind="textField" x="405" y="0" width="150" height="20" bold="true" hTextAlign="Right" vTextAlign="Middle" pattern="L #,##0.00">
+					<expression><![CDATA[$V{viaticosEmpleado}]]></expression>
+					<box rightPadding="5"><topPen lineWidth="0.5"/></box>
+				</element>
+			</band>
+		</groupFooter>
+	</group>
+	<title height="60">
+		<element kind="staticText" x="0" y="0" width="555" height="30" fontSize="18.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Planilla por Empleado]]></text>
+		</element>
+		<element kind="textField" x="0" y="32" width="555" height="20" fontSize="10.0" hTextAlign="Center">
+			<expression><![CDATA["Período: "
++ ($P{FECHA_INICIO} == null ? "inicio" : new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{FECHA_INICIO}))
++ " al "
++ ($P{FECHA_FIN} == null ? "hoy" : new java.text.SimpleDateFormat("dd/MM/yyyy").format($P{FECHA_FIN}))]]></expression>
+		</element>
+	</title>
+	<detail>
+		<band height="20">
+			<element kind="textField" x="0" y="0" width="80" height="20" hTextAlign="Center" vTextAlign="Middle">
+				<expression><![CDATA[$F{IdPago}]]></expression>
+				<box><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="textField" x="80" y="0" width="175" height="20" hTextAlign="Center" vTextAlign="Middle" pattern="dd/MM/yyyy">
+				<expression><![CDATA[$F{fechaPago}]]></expression>
+				<box><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="textField" x="255" y="0" width="150" height="20" hTextAlign="Right" vTextAlign="Middle" pattern="#,##0.00">
+				<expression><![CDATA[$F{horasExtras}]]></expression>
+				<box rightPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="textField" x="405" y="0" width="150" height="20" hTextAlign="Right" vTextAlign="Middle" pattern="L #,##0.00">
+				<expression><![CDATA[$F{viaticos}]]></expression>
+				<box rightPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+		</band>
+	</detail>
+	<pageFooter height="20">
+		<element kind="textField" x="0" y="0" width="300" height="20" fontSize="9.0" vTextAlign="Middle">
+			<expression><![CDATA["Elaborado por: " + $P{AUTOR}]]></expression>
+		</element>
+		<element kind="textField" x="300" y="0" width="255" height="20" fontSize="9.0" hTextAlign="Right" vTextAlign="Middle">
+			<expression><![CDATA["Página " + $V{PAGE_NUMBER}]]></expression>
+		</element>
+	</pageFooter>
+	<summary height="30">
+		<element kind="staticText" x="80" y="6" width="175" height="22" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<text><![CDATA[TOTAL GENERAL:]]></text>
+			<box rightPadding="5"/>
+		</element>
+		<element kind="textField" mode="Opaque" x="255" y="6" width="150" height="22" backcolor="#F2F2F2" bold="true" hTextAlign="Right" vTextAlign="Middle" pattern="#,##0.00">
+			<expression><![CDATA[$V{totalHoras}]]></expression>
+			<box rightPadding="5"/>
+		</element>
+		<element kind="textField" mode="Opaque" x="405" y="6" width="150" height="22" backcolor="#F2F2F2" bold="true" hTextAlign="Right" vTextAlign="Middle" pattern="L #,##0.00">
+			<expression><![CDATA[$V{totalViaticos}]]></expression>
+			<box rightPadding="5"/>
+		</element>
+	</summary>
+	<noData height="80">
+		<element kind="staticText" x="0" y="0" width="555" height="30" fontSize="18.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Planilla por Empleado]]></text>
+		</element>
+		<element kind="staticText" x="0" y="40" width="555" height="25" fontSize="12.0" hTextAlign="Center" vTextAlign="Middle" forecolor="#CC0000">
+			<text><![CDATA[No hay pagos en el período seleccionado.]]></text>
+		</element>
+	</noData>
+</jasperReport>

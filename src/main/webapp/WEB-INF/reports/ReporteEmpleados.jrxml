@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Listado de empleados con salario y totales. Autor: Julio Fuentes -->
+<jasperReport name="ReporteEmpleados" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" whenNoDataType="NoDataSection">
+	<parameter name="AUTOR" class="java.lang.String">
+		<defaultValueExpression><![CDATA["Julio Fuentes"]]></defaultValueExpression>
+	</parameter>
+	<query language="SQL"><![CDATA[SELECT IdEmpleado, Nombre + ' ' + Apellido AS nombre, Puesto, Salario
+FROM Empleados
+ORDER BY Nombre, Apellido]]></query>
+	<field name="IdEmpleado" class="java.lang.Integer"/>
+	<field name="nombre" class="java.lang.String"/>
+	<field name="Puesto" class="java.lang.String"/>
+	<field name="Salario" class="java.math.BigDecimal"/>
+	<variable name="totalSalarios" calculation="Sum" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{Salario}]]></expression>
+	</variable>
+	<variable name="promedioSalario" calculation="Average" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{Salario}]]></expression>
+	</variable>
+	<title height="60">
+		<element kind="staticText" x="0" y="0" width="555" height="30" fontSize="18.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Reporte de Empleados]]></text>
+		</element>
+		<element kind="textField" x="0" y="32" width="555" height="20" fontSize="10.0" hTextAlign="Center" pattern="dd/MM/yyyy HH:mm">
+			<expression><![CDATA[new java.util.Date()]]></expression>
+		</element>
+	</title>
+	<columnHeader height="22">
+		<element kind="staticText" mode="Opaque" x="0" y="0" width="50" height="22" backcolor="#F2F2F2" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[ID]]></text>
+			<box><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+		</element>
+		<element kind="staticText" mode="Opaque" x="50" y="0" width="215" height="22" backcolor="#F2F2F2" bold="true" vTextAlign="Middle">
+			<text><![CDATA[Empleado]]></text>
+			<box leftPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+		</element>
+		<element kind="staticText" mode="Opaque" x="265" y="0" width="170" height="22" backcolor="#F2F2F2" bold="true" vTextAlign="Middle">
+			<text><![CDATA[Puesto]]></text>
+			<box leftPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+		</element>
+		<element kind="staticText" mode="Opaque" x="435" y="0" width="120" height="22" backcolor="#F2F2F2" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<text><![CDATA[Salario]]></text>
+			<box rightPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+		</element>
+	</columnHeader>
+	<detail>
+		<band height="20">
+			<element kind="textField" x="0" y="0" width="50" height="20" hTextAlign="Center" vTextAlign="Middle">
+				<expression><![CDATA[$F{IdEmpleado}]]></expression>
+				<box><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="textField" x="50" y="0" width="215" height="20" vTextAlign="Middle">
+				<expression><![CDATA[$F{nombre}]]></expression>
+				<box leftPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="textField" x="265" y="0" width="170" height="20" vTextAlign="Middle">
+				<expression><![CDATA[$F{Puesto}]]></expression>
+				<box leftPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+			<element kind="textField" x="435" y="0" width="120" height="20" hTextAlign="Right" vTextAlign="Middle" pattern="L #,##0.00">
+				<expression><![CDATA[$F{Salario}]]></expression>
+				<box rightPadding="5"><pen lineWidth="0.5" lineColor="#CCCCCC"/></box>
+			</element>
+		</band>
+	</detail>
+	<pageFooter height="20">
+		<element kind="textField" x="0" y="0" width="300" height="20" fontSize="9.0" vTextAlign="Middle">
+			<expression><![CDATA["Elaborado por: " + $P{AUTOR}]]></expression>
+		</element>
+		<element kind="textField" x="300" y="0" width="255" height="20" fontSize="9.0" hTextAlign="Right" vTextAlign="Middle">
+			<expression><![CDATA["Página " + $V{PAGE_NUMBER}]]></expression>
+		</element>
+	</pageFooter>
+	<summary height="66">
+		<element kind="staticText" x="265" y="4" width="170" height="20" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<text><![CDATA[Total de empleados:]]></text>
+		</element>
+		<element kind="textField" x="435" y="4" width="120" height="20" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<expression><![CDATA[$V{REPORT_COUNT}]]></expression>
+			<box rightPadding="5"/>
+		</element>
+		<element kind="staticText" x="265" y="24" width="170" height="20" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<text><![CDATA[Total en salarios:]]></text>
+		</element>
+		<element kind="textField" x="435" y="24" width="120" height="20" bold="true" hTextAlign="Right" vTextAlign="Middle" pattern="L #,##0.00">
+			<expression><![CDATA[$V{totalSalarios}]]></expression>
+			<box rightPadding="5"/>
+		</element>
+		<element kind="staticText" x="265" y="44" width="170" height="20" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<text><![CDATA[Salario promedio:]]></text>
+		</element>
+		<element kind="textField" x="435" y="44" width="120" height="20" bold="true" hTextAlign="Right" vTextAlign="Middle" pattern="L #,##0.00">
+			<expression><![CDATA[$V{promedioSalario}]]></expression>
+			<box rightPadding="5"/>
+		</element>
+	</summary>
+	<noData height="80">
+		<element kind="staticText" x="0" y="0" width="555" height="30" fontSize="18.0" bold="true" hTextAlign="Center" vTextAlign="Middle">
+			<text><![CDATA[Reporte de Empleados]]></text>
+		</element>
+		<element kind="staticText" x="0" y="40" width="555" height="25" fontSize="12.0" hTextAlign="Center" vTextAlign="Middle" forecolor="#CC0000">
+			<text><![CDATA[No hay empleados registrados.]]></text>
+		</element>
+	</noData>
+</jasperReport>
